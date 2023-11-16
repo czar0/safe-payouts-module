@@ -1,66 +1,55 @@
-## Foundry
+# Safe - Payouts module 💸
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+A simple implementation of a Gnosis Safe module for company/DAO payouts written in Solidity.
 
-Foundry consists of:
+**🚨 Beware this is a demo-purpose-only contract and it is not recommended to deploy it (as is) to production networks. Modules can be a security risk since they can execute arbitrary transactions bypassing the signature quorum. Only add trusted and audited modules to a Safe. A malicious module can take over a Safe.**
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+## Requirements
 
-## Documentation
+_Note: this step is only required if you want to build, test, and run this project locally. Otherwise, you can directly jump to the Deploy section._
 
-https://book.getfoundry.sh/
+- [**solc**](https://github.com/ethereum/solidity/) - solidity compiler
+- [**solc-select**](https://github.com/crytic/solc-select) - manages installing and setting different solc compiler versions **(recommended)**
+- [**foundry**](https://github.com/foundry-rs/foundry) - a blazing fast, portable and modular toolkit for Ethereum application development written in Rust
 
-## Usage
+_Make sure your solidity compiler matches with the minimum specific version or version range defined in the contracts._
 
-### Build
+## Build
 
-```shell
-$ forge build
-```
-
-### Test
+To build the contracts simply run:
 
 ```shell
-$ forge test
+forge build
 ```
 
-### Format
+## Deploy
 
-```shell
-$ forge fmt
-```
+### via UI
 
-### Gas Snapshots
+You can deploy this contract and interact with it directly on your browser via Remix. Click on the link below.
 
-```shell
-$ forge snapshot
-```
+[SafePayoutsModule.sol > Remix](https://remix.ethereum.org/#url=https://github.com/czar0/safe-payouts-module/blob/main/src/SafePayoutsModule.sol)
 
-### Anvil
+## Work with a module
 
-```shell
-$ anvil
-```
+### Enable the module
 
-### Deploy
+To add a module to your Safe account follow this comprehensive guide: [Safe - Add a module](https://help.safe.global/en/articles/40826-add-a-module).
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
+To find out the version of your Safe account mastercopy contract, navigate to _Settings > Setup_ on your Safe wallet UI. Then, find the corresponding version of the deployed address (for your selected chain) in this repository: [safe-deployment](https://github.com/safe-global/safe-deployments/tree/main/src/assets).
 
-### Cast
+### Remove the module
 
-```shell
-$ cast <subcommand>
-```
+You can perform this action directly from the Safe wallet UI, navigating to _Settings > Modules_, identifying the module based on its address and then clicking on the delete icon.
 
-### Help
+## Execute transactions
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+Once the module is enabled in your Safe account, you can jump on Remix and start performing some actions, such as:
+
+- **addPayout(address beneficiary, uint256 amount)** - which will add new payout information (beneficiary and amount)
+- **executePayouts(address safeAccount)** - which will perform all the payouts in the list using funds from your Safe account (taking in input the account address)
+
+## Resources
+
+- [Safe modules](https://docs.safe.global/safe-smart-account/modules)
+- [safe-contracts](https://github.com/safe-global/safe-contracts)
