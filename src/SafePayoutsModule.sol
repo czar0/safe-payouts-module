@@ -17,6 +17,7 @@ contract SafePayoutsModule {
     address[] private beneficiaries;
     mapping(address => uint256) private payouts;
     mapping(address => bool) private paid;
+    mapping(address => uint256) private indexes;
 
     modifier onlyOperator(address caller) {
         require(operators[caller], "no permissions");
@@ -27,7 +28,7 @@ contract SafePayoutsModule {
         operators[msg.sender] = true;
     }
 
-    /// Add a new payout information to the list (only if authorized)
+    /// Add a new payout  to the list (only if authorized)
     /// @param beneficiary the address of the recipient
     /// @param amount the value to be sent to the recipient
     /// @dev Restrict this operation to authorized actors
@@ -36,8 +37,22 @@ contract SafePayoutsModule {
         require(payouts[beneficiary] == 0, "address already exists");
         require(amount > 0, "amount too low");
 
+        indexes[beneficiary] = beneficiaries.length;
         beneficiaries.push(beneficiary);
         payouts[beneficiary] = amount;
+    }
+
+    /// Remove a payout from the list (only if authorized)
+    /// @param beneficiary the address of the recipient
+    /// @dev Restrict this operation to authorized actors
+    function removePayout(address beneficiary) public onlyOperator(msg.sender) {
+        require(beneficiary != address(0), "address not valid");
+        require(payouts[beneficiary] != 0, "address do not exist");
+
+        uint256 index = indexes[beneficiary];
+        beneficiaries[index] = beneficiaries[beneficiaries.length - 1];
+        indexes[beneficiaries[index]] = index;
+        beneficiaries.pop();
     }
 
     /// Execute all the payouts (only if authorized)

@@ -9,7 +9,7 @@ A simple implementation of a Gnosis Safe module for company/DAO payouts written 
 _Note: this step is only required if you want to build, test, and run this project locally. Otherwise, you can directly jump to the Deploy section._
 
 - [**solc**](https://github.com/ethereum/solidity/) - solidity compiler
-- [**solc-select**](https://github.com/crytic/solc-select) - manages installing and setting different solc compiler versions **(recommended)**
+- [**solc-select**](https://github.com/crytic/solc-select) - manages the installation and the setting of different solc compiler versions **(recommended)**
 - [**foundry**](https://github.com/foundry-rs/foundry) - a blazing fast, portable and modular toolkit for Ethereum application development written in Rust
 
 _Make sure your solidity compiler matches with the minimum specific version or version range defined in the contracts._
@@ -47,6 +47,7 @@ You can perform this action directly from the Safe wallet UI, navigating to _Set
 Once the module is enabled in your Safe account, you can jump on Remix and start performing some actions, such as:
 
 - **addPayout(address beneficiary, uint256 amount)** - which will add new payout information (beneficiary and amount)
+- **removePayout(address beneficiary)** - that will remove the payout information associated with the passed beneficiary
 - **executePayouts(address safeAccount)** - which will perform all the payouts in the list using funds from your Safe account (taking in input the account address)
 
 ## Resources
