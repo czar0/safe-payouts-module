@@ -22,6 +22,26 @@ To build the contracts simply run:
 forge build
 ```
 
+## Test
+
+To test the contracts run:
+
+```shell
+forge test
+```
+
+This will compile and run all files within the `test` folder. To test a specific contract use the flag `--match-path` as follows:
+
+```shell
+forge test --match-path test/<CONTRACT>
+```
+
+You can set different levels of verbosity simply by adding one or more `v` as trailing parameters, like that:
+
+```shell
+forge test -vvvv
+```
+
 ## Deploy
 
 ### via UI
