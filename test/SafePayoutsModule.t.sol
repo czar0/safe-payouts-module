@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {Test, console2} from "forge-std/Test.sol";
+import "forge-std/Test.sol";
 import {SafePayoutsModule, ISafeModuleManager} from "../src/SafePayoutsModule.sol";
 
 contract SafePayoutsModuleTest is Test {
-    SafePayoutsModule payoutsModule;
-    address payable alice;
-    address payable bob;
-    address payable charlie;
+    SafePayoutsModule internal payoutsModule;
+    address payable internal alice;
+    address payable internal bob;
+    address payable internal charlie;
+    ISafeModuleManager internal safeAccount;
 
     // Deploying the contract
     function setUp() public {
@@ -16,6 +17,7 @@ contract SafePayoutsModuleTest is Test {
         alice = payable(makeAddr("alice"));
         bob = payable(makeAddr("bob"));
         charlie = payable(makeAddr("charlie"));
+        safeAccount = ISafeModuleManager(makeAddr("safeAccount"));
     }
 
     // Check the deployer is in the operators list
@@ -109,5 +111,72 @@ contract SafePayoutsModuleTest is Test {
         vm.prank(address(123));
         vm.expectRevert("no permissions");
         payoutsModule.removePayout(alice);
+    }
+
+    // Operators should be able to execute the payouts
+    function test_executePayouts_OperatorIsAllowed() public {
+        vm.deal(address(safeAccount), 10 ether);
+        assertEq(address(safeAccount).balance, 10 ether);
+
+        vm.startPrank(address(this));
+        payoutsModule.addPayout(alice, 1 ether); // index = 0
+        payoutsModule.addPayout(bob, 2 ether); // index = 1
+        payoutsModule.addPayout(charlie, 3 ether); // index = 2
+
+        vm.mockCall(
+            address(safeAccount),
+            0,
+            abi.encodeWithSelector(
+                safeAccount.execTransactionFromModule.selector,
+                address(alice),
+                1 ether,
+                "",
+                ISafeModuleManager.Operation.Call
+            ),
+            abi.encode(true)
+        );
+        vm.mockCall(
+            address(safeAccount),
+            0,
+            abi.encodeWithSelector(
+                safeAccount.execTransactionFromModule.selector,
+                address(bob),
+                2 ether,
+                "",
+                ISafeModuleManager.Operation.Call
+            ),
+            abi.encode(true)
+        );
+        vm.mockCall(
+            address(safeAccount),
+            0,
+            abi.encodeWithSelector(
+                safeAccount.execTransactionFromModule.selector,
+                address(charlie),
+                3 ether,
+                "",
+                ISafeModuleManager.Operation.Call
+            ),
+            abi.encode(true)
+        );
+        payoutsModule.executePayouts(address(safeAccount));
+        assertTrue(
+            safeAccount.execTransactionFromModule(alice, 1 ether, "", ISafeModuleManager.Operation.Call)
+        );
+        assertTrue(safeAccount.execTransactionFromModule(bob, 2 ether, "", ISafeModuleManager.Operation.Call));
+        assertTrue(
+            safeAccount.execTransactionFromModule(charlie, 3 ether, "", ISafeModuleManager.Operation.Call)
+        );
+
+        assertFalse(payoutsModule.paid(alice));
+        assertFalse(payoutsModule.paid(bob));
+        assertFalse(payoutsModule.paid(charlie));
+    }
+
+    // Non-Operators should not be able to execute payouts
+    function test_executePayout_RevertIf_NotOperator() public {
+        vm.prank(address(123));
+        vm.expectRevert("no permissions");
+        payoutsModule.executePayouts(address(safeAccount));
     }
 }
